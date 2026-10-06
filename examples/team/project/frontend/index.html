@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Users</title>
+<h1>Users</h1>
+<div id="users">Loading…</div>
+<script type="module">
+  import { loadUsers, renderUsers } from './users.mjs';
+  const root = document.querySelector('#users');
+  try {
+    const result = await loadUsers('');
+    root.innerHTML = renderUsers(result.items);
+  } catch (error) {
+    root.textContent = error.message;
+  }
+</script>
+</html>

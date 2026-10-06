@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "project": "team-users-demo",
+  "requirement": "Implement a users list. The Go backend exposes GET /api/users; the browser frontend fetches the response and renders a safe HTML list. Preserve the existing health endpoint.",
+  "acceptance": [
+    "GET /api/users returns application/json with items containing id and name, and total equal to the item count.",
+    "The seeded users are Ada (id 1) and Lin (id 2).",
+    "The frontend displays every user name and escapes HTML-sensitive characters.",
+    "A non-successful HTTP response produces an error instead of a misleading empty list."
+  ],
+  "contract": {
+    "version": 1,
+    "summary": "Users collection envelope: items and total; backend listens on TEAM_DEMO_ADDR, default 127.0.0.1:8080.",
+    "endpoints": [{
+      "method": "GET",
+      "path": "/api/users",
+      "response": {"items": [{"id": 1, "name": "Ada"}, {"id": 2, "name": "Lin"}], "total": 2},
+      "errors": {"500": "Unexpected server error"}
+    }]
+  },
+  "frontend": {
+    "task": "Implement loadUsers(baseURL) and renderUsers(users) in frontend/users.mjs. loadUsers returns the validated response envelope and throws on unsuccessful HTTP responses. renderUsers returns a ul/li HTML string and escapes names. Wire the existing index.html. Use no external packages.",
+    "paths": ["frontend"]
+  },
+  "backend": {
+    "task": "Implement GET /api/users in backend/main.go using the standard library, returning the exact seeded users from the contract with JSON content type. Preserve /health and TEAM_DEMO_ADDR. Serve ../frontend as static files at / so the browser uses the same origin. Add local tests if useful.",
+    "paths": ["backend"]
+  },
+  "checks": [
+    {"name": "frontend-contract", "owner": "frontend", "command": ["node", "--test", "acceptance/frontend.test.mjs"], "timeout_seconds": 30},
+    {"name": "backend-tests", "owner": "backend", "command": ["go", "test", "./..."], "dir": "backend", "timeout_seconds": 60},
+    {"name": "users-end-to-end", "owner": "both", "command": ["node", "--test", "acceptance/integration.test.mjs"], "timeout_seconds": 90}
+  ],
+  "max_repair_rounds": 2,
+  "worker_timeout_seconds": 600,
+  "max_turns": 30
+}
