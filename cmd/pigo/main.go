@@ -24,7 +24,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	flag "github.com/spf13/pflag"
@@ -36,6 +38,7 @@ import (
 	"github.com/smallnest/pigo/internal/cli/repl"
 	"github.com/smallnest/pigo/internal/cli/run"
 	"github.com/smallnest/pigo/internal/cli/sessioncmd"
+	"github.com/smallnest/pigo/internal/cli/teamcmd"
 	"github.com/smallnest/pigo/internal/cli/tui"
 	"github.com/smallnest/pigo/internal/cli/ui"
 	"github.com/smallnest/pigo/internal/dream"
@@ -167,6 +170,18 @@ type cliOptions struct {
 }
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "team" {
+		ctx := context.Background()
+		stop := func() {}
+		// Only runs consume cancellation. Stdio experience servers terminate
+		// through normal process signals and must not swallow Ctrl+C while idle.
+		if len(os.Args) > 2 && (os.Args[2] == "run" || os.Args[2] == "resume") {
+			ctx, stop = signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+		}
+		code := teamcmd.Run(ctx, os.Args[2:], os.Stdout, os.Stderr)
+		stop()
+		os.Exit(code)
+	}
 	// Session subcommands (pigo session export|list, issue #570) dispatch early
 	// like the package-management ones: they are standalone actions that never
 	// touch the interactive/headless flag surface.

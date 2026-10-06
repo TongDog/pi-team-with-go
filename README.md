@@ -9,6 +9,8 @@ pigo 可以读写文件、执行命令、检索代码、抓取网页，并借助
 
 > 模块路径：`github.com/smallnest/pigo` · Go 1.27+
 
+本分支基于 pigo 增加了 **前后端 Agent 协作与经验复用**：`pigo team` 用独立上下文和 Git 工作目录运行两个角色，通过版本化接口契约、实际验收和有限轮次修复推进任务。每阶段输出命令行日志，并保留经验草稿供审核。入口、示例和限制见 [协作使用说明](docs/team-agent.md)。原有 Agent Runtime、模型 Provider 和基础工具来自 pigo。
+
 > 📖 配套电子书《用 Go 编写 pi Agent》：[write_pi_agent_in_go.pdf](https://github.com/smallnest/ebooks/blob/master/write_pi_agent_in_go.pdf)
 
 ![](docs/pigo-tui.png)
